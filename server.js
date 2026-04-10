@@ -43,11 +43,13 @@ function proxyRequest(targetBase, req, res) {
 }
 
 app.use('/api/products', (req, res) => {
-  proxyRequest(PRODUCT_SERVICE + '/products', req, res);
+  const targetUrl = PRODUCT_SERVICE + '/products' + (req.url === '/' ? '' : req.url);
+  proxyRequest(targetUrl, req, res);
 });
 
 app.use('/api/orders', (req, res) => {
-  proxyRequest(ORDER_SERVICE + '/orders', req, res);
+  const targetUrl = ORDER_SERVICE + '/orders' + (req.url === '/' ? '' : req.url);
+  proxyRequest(targetUrl, req, res);
 });
 
 app.get('/health', (req, res) => res.json({ status: 'healthy', service: 'store-front' }));
