@@ -13,23 +13,24 @@
       color: white;
       padding: 15px 30px;
       display: flex;
-      align-items: center;
       justify-content: space-between;
+      align-items: center;
     }
     header h1 { font-size: 1.5em; }
-    .cart-icon {
+    .cart-btn {
       background: #ffed00;
       color: #0046be;
-      padding: 8px 18px;
-      border-radius: 6px;
+      border: none;
+      padding: 8px 20px;
+      border-radius: 5px;
       font-weight: bold;
       cursor: pointer;
-      font-size: 0.95em;
+      font-size: 1em;
     }
 
     .container { max-width: 1100px; margin: 30px auto; padding: 0 20px; }
 
-    h2 { color: #333; margin-bottom: 20px; font-size: 1.3em; }
+    h2 { color: #0046be; margin-bottom: 20px; font-size: 1.3em; }
 
     .product-grid {
       display: grid;
@@ -47,14 +48,9 @@
       flex-direction: column;
       gap: 8px;
     }
-    .product-card .category {
-      font-size: 0.75em;
-      color: #0046be;
-      font-weight: bold;
-      text-transform: uppercase;
-    }
     .product-card h3 { font-size: 1em; color: #222; }
     .product-card p  { font-size: 0.85em; color: #666; flex: 1; }
+    .product-card .category { font-size: 0.75em; background: #e8f0ff; color: #0046be; padding: 2px 8px; border-radius: 10px; width: fit-content; }
     .product-card .price { font-size: 1.4em; font-weight: bold; color: #0046be; }
     .product-card .stock { font-size: 0.8em; color: #28a745; }
 
@@ -66,7 +62,6 @@
       border-radius: 5px;
       cursor: pointer;
       font-weight: bold;
-      font-size: 0.9em;
       margin-top: 5px;
     }
     .btn-add:hover { background: #003399; }
@@ -74,106 +69,149 @@
 
     /* Cart Panel */
     .cart-panel {
+      position: fixed;
+      top: 0; right: -420px;
+      width: 400px;
+      height: 100vh;
       background: white;
-      border-radius: 8px;
-      padding: 25px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.08);
-      margin-bottom: 30px;
-      display: none;
+      box-shadow: -4px 0 15px rgba(0,0,0,0.15);
+      transition: right 0.3s ease;
+      z-index: 1000;
+      display: flex;
+      flex-direction: column;
     }
-    .cart-panel.open { display: block; }
-    .cart-panel h2 { color: #0046be; margin-bottom: 15px; }
+    .cart-panel.open { right: 0; }
+    .cart-header {
+      background: #0046be;
+      color: white;
+      padding: 15px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .cart-header h3 { font-size: 1.1em; }
+    .close-btn { background: none; border: none; color: white; font-size: 1.5em; cursor: pointer; }
 
+    .cart-body { flex: 1; overflow-y: auto; padding: 20px; }
     .cart-item {
       display: flex;
       justify-content: space-between;
-      padding: 8px 0;
+      align-items: center;
+      padding: 10px 0;
       border-bottom: 1px solid #f0f0f0;
-      font-size: 0.9em;
     }
-    .cart-total {
-      text-align: right;
-      font-size: 1.2em;
-      font-weight: bold;
-      color: #0046be;
-      margin: 15px 0;
-    }
+    .cart-item-name { font-size: 0.9em; font-weight: bold; }
+    .cart-item-price { color: #0046be; font-weight: bold; }
+    .remove-btn { background: none; border: none; color: #dc3545; cursor: pointer; font-size: 1.1em; }
 
-    .checkout-form { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
-    .checkout-form input {
-      padding: 10px 14px;
+    .cart-footer { padding: 20px; border-top: 2px solid #f0f0f0; }
+    .cart-total { font-size: 1.2em; font-weight: bold; margin-bottom: 15px; }
+
+    .form-group { margin-bottom: 10px; }
+    .form-group label { font-size: 0.85em; color: #666; display: block; margin-bottom: 4px; }
+    .form-group input {
+      width: 100%;
+      padding: 8px 12px;
       border: 1px solid #ddd;
       border-radius: 5px;
       font-size: 0.9em;
-      flex: 1;
-      min-width: 180px;
     }
-    .btn-checkout {
-      background: #ffed00;
-      color: #0046be;
-      border: none;
-      padding: 10px 25px;
-      border-radius: 5px;
-      font-weight: bold;
-      cursor: pointer;
-      font-size: 0.95em;
-    }
-    .btn-checkout:hover { background: #e6d800; }
-    .btn-clear {
-      background: #dc3545;
+
+    .btn-order {
+      width: 100%;
+      background: #0046be;
       color: white;
       border: none;
-      padding: 10px 18px;
+      padding: 12px;
       border-radius: 5px;
+      font-size: 1em;
+      font-weight: bold;
       cursor: pointer;
-      font-size: 0.9em;
     }
+    .btn-order:hover { background: #003399; }
 
-    #orderMessage {
-      padding: 12px 18px;
-      border-radius: 6px;
-      margin-top: 15px;
+    .overlay {
       display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.4);
+      z-index: 999;
+    }
+    .overlay.show { display: block; }
+
+    .toast {
+      position: fixed;
+      bottom: 30px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #28a745;
+      color: white;
+      padding: 12px 30px;
+      border-radius: 25px;
+      font-weight: bold;
+      display: none;
+      z-index: 9999;
+      font-size: 0.95em;
+    }
+    .toast.show { display: block; }
+    .toast.error { background: #dc3545; }
+
+    .empty-cart { text-align: center; color: #999; padding: 40px 0; }
+
+    #cartCount {
+      background: #ffed00;
+      color: #0046be;
+      border-radius: 50%;
+      padding: 1px 7px;
+      font-size: 0.85em;
       font-weight: bold;
     }
-    #orderMessage.success { background: #d4edda; color: #155724; display: block; }
-    #orderMessage.error   { background: #f8d7da; color: #721c24; display: block; }
-
-    .empty-cart { color: #999; text-align: center; padding: 20px; }
   </style>
 </head>
 <body>
 
 <header>
   <h1>🛒 Best Buy</h1>
-  <div class="cart-icon" onclick="toggleCart()">
-    🛍️ Cart (<span id="cartCount">0</span>)
-  </div>
+  <button class="cart-btn" onclick="openCart()">
+    🛍 Cart <span id="cartCount">0</span>
+  </button>
 </header>
 
 <div class="container">
-
-  <!-- Cart Panel -->
-  <div class="cart-panel" id="cartPanel">
-    <h2>🛍️ Your Cart</h2>
-    <div id="cartItems"><p class="empty-cart">Your cart is empty</p></div>
-    <div class="cart-total">Total: $<span id="cartTotal">0.00</span></div>
-    <div class="checkout-form">
-      <input id="customerName"  placeholder="Your full name" />
-      <input id="customerEmail" placeholder="Email address" type="email"/>
-      <button class="btn-checkout" onclick="placeOrder()">✓ Place Order</button>
-      <button class="btn-clear"   onclick="clearCart()">Clear Cart</button>
-    </div>
-    <div id="orderMessage"></div>
-  </div>
-
-  <!-- Products -->
   <h2>Featured Products</h2>
   <div id="productGrid" class="product-grid">
     <p style="color:#999">Loading products...</p>
   </div>
-
 </div>
+
+<!-- Cart Overlay -->
+<div class="overlay" id="overlay" onclick="closeCart()"></div>
+
+<!-- Cart Panel -->
+<div class="cart-panel" id="cartPanel">
+  <div class="cart-header">
+    <h3>🛍 Your Cart</h3>
+    <button class="close-btn" onclick="closeCart()">×</button>
+  </div>
+  <div class="cart-body" id="cartBody">
+    <div class="empty-cart">Your cart is empty</div>
+  </div>
+  <div class="cart-footer">
+    <div class="cart-total">Total: $<span id="cartTotal">0.00</span></div>
+    <div class="form-group">
+      <label>Your Name *</label>
+      <input id="customerName" placeholder="Enter your name" />
+    </div>
+    <div class="form-group">
+      <label>Email</label>
+      <input id="customerEmail" placeholder="Enter your email" type="email" />
+    </div>
+    <button class="btn-order" onclick="placeOrder()">Place Order</button>
+  </div>
+</div>
+
+<!-- Toast Notification -->
+<div class="toast" id="toast"></div>
 
 <script>
   const PRODUCT_API = window.PRODUCT_SERVICE_URL || 'http://localhost:3001';
@@ -181,68 +219,31 @@
 
   let cart = [];
 
-  // ── Cart UI ──────────────────────────────────────────────
-  function toggleCart() {
-    document.getElementById('cartPanel').classList.toggle('open');
+  // ── Toast ──────────────────────────────────────────────
+  function showToast(msg, type = 'success') {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.className = `toast show ${type}`;
+    setTimeout(() => t.className = 'toast', 3000);
   }
 
-  function updateCartUI() {
-    document.getElementById('cartCount').textContent = cart.length;
-    const total = cart.reduce((sum, i) => sum + i.price * i.quantity, 0);
-    document.getElementById('cartTotal').textContent = total.toFixed(2);
-
-    const el = document.getElementById('cartItems');
-    if (cart.length === 0) {
-      el.innerHTML = '<p class="empty-cart">Your cart is empty</p>';
-      return;
-    }
-    el.innerHTML = cart.map((item, idx) => `
-      <div class="cart-item">
-        <span>${item.productName} x${item.quantity}</span>
-        <span>
-          $${(item.price * item.quantity).toFixed(2)}
-          <button onclick="removeFromCart(${idx})"
-            style="background:none;border:none;color:red;cursor:pointer;margin-left:8px">✕</button>
-        </span>
-      </div>
-    `).join('');
-  }
-
-  function addToCart(product) {
-    const existing = cart.find(i => i.productId === product._id);
-    if (existing) {
-      existing.quantity++;
-    } else {
-      cart.push({
-        productId:   product._id,
-        productName: product.name,
-        quantity:    1,
-        price:       product.price
-      });
-    }
-    updateCartUI();
-
-    // Open cart automatically
+  // ── Cart Panel ─────────────────────────────────────────
+  function openCart()  {
     document.getElementById('cartPanel').classList.add('open');
+    document.getElementById('overlay').classList.add('show');
+  }
+  function closeCart() {
+    document.getElementById('cartPanel').classList.remove('open');
+    document.getElementById('overlay').classList.remove('show');
   }
 
-  function removeFromCart(idx) {
-    cart.splice(idx, 1);
-    updateCartUI();
-  }
-
-  function clearCart() {
-    cart = [];
-    updateCartUI();
-  }
-
-  // ── Products ─────────────────────────────────────────────
+  // ── Products ───────────────────────────────────────────
   async function loadProducts() {
     try {
       const res = await fetch(`${PRODUCT_API}/products`);
       const products = await res.json();
-
       const grid = document.getElementById('productGrid');
+
       if (products.length === 0) {
         grid.innerHTML = '<p style="color:#999">No products available</p>';
         return;
@@ -253,12 +254,12 @@
           <span class="category">${p.category}</span>
           <h3>${p.name}</h3>
           <p>${p.description}</p>
-          <span class="price">$${p.price.toFixed(2)}</span>
-          <span class="stock">${p.stock > 0 ? `✓ In Stock (${p.stock})` : '✗ Out of Stock'}</span>
+          <div class="price">$${p.price.toFixed(2)}</div>
+          <div class="stock">✓ ${p.stock} in stock</div>
           <button class="btn-add"
             onclick='addToCart(${JSON.stringify(p)})'
             ${p.stock === 0 ? 'disabled' : ''}>
-            Add to Cart
+            ${p.stock === 0 ? 'Out of Stock' : '+ Add to Cart'}
           </button>
         </div>
       `).join('');
@@ -268,24 +269,55 @@
     }
   }
 
-  // ── Checkout ─────────────────────────────────────────────
+  // ── Cart Logic ─────────────────────────────────────────
+  function addToCart(product) {
+    cart.push({
+      productId:   product._id,
+      productName: product.name,
+      quantity:    1,
+      price:       product.price
+    });
+    updateCartUI();
+    showToast(`${product.name} added to cart!`);
+    openCart();
+  }
+
+  function removeFromCart(index) {
+    cart.splice(index, 1);
+    updateCartUI();
+  }
+
+  function updateCartUI() {
+    document.getElementById('cartCount').textContent = cart.length;
+    const total = cart.reduce((sum, item) => sum + item.price, 0);
+    document.getElementById('cartTotal').textContent = total.toFixed(2);
+
+    const body = document.getElementById('cartBody');
+    if (cart.length === 0) {
+      body.innerHTML = '<div class="empty-cart">Your cart is empty</div>';
+      return;
+    }
+
+    body.innerHTML = cart.map((item, i) => `
+      <div class="cart-item">
+        <div>
+          <div class="cart-item-name">${item.productName}</div>
+          <div class="cart-item-price">$${item.price.toFixed(2)}</div>
+        </div>
+        <button class="remove-btn" onclick="removeFromCart(${i})">🗑</button>
+      </div>
+    `).join('');
+  }
+
+  // ── Place Order ────────────────────────────────────────
   async function placeOrder() {
     const customerName  = document.getElementById('customerName').value.trim();
     const customerEmail = document.getElementById('customerEmail').value.trim();
-    const msgEl = document.getElementById('orderMessage');
 
-    if (!customerName) {
-      msgEl.textContent = '⚠️ Please enter your name';
-      msgEl.className = 'error';
-      return;
-    }
-    if (cart.length === 0) {
-      msgEl.textContent = '⚠️ Your cart is empty';
-      msgEl.className = 'error';
-      return;
-    }
+    if (!customerName) { showToast('Please enter your name', 'error'); return; }
+    if (cart.length === 0) { showToast('Your cart is empty', 'error'); return; }
 
-    const total = cart.reduce((sum, i) => sum + i.price * i.quantity, 0);
+    const total = cart.reduce((sum, item) => sum + item.price, 0);
 
     try {
       const res = await fetch(`${ORDER_API}/orders`, {
@@ -295,22 +327,20 @@
       });
 
       if (res.ok) {
-        const order = await res.json();
-        msgEl.textContent = `✅ Order placed! Your order ID: ${order._id.slice(-8).toUpperCase()}`;
-        msgEl.className = 'success';
-        clearCart();
+        cart = [];
+        updateCartUI();
         document.getElementById('customerName').value  = '';
         document.getElementById('customerEmail').value = '';
+        closeCart();
+        showToast('🎉 Order placed successfully!');
       } else {
-        throw new Error('Order failed');
+        showToast('Failed to place order. Try again.', 'error');
       }
     } catch (err) {
-      msgEl.textContent = '❌ Could not place order. Please try again.';
-      msgEl.className = 'error';
+      showToast('Could not connect to Order Service', 'error');
     }
   }
 
-  // Load products on start
   loadProducts();
 </script>
 </body>
