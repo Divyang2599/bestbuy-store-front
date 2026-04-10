@@ -6,8 +6,8 @@ const app = express();
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
-const PRODUCT_SERVICE = process.env.PRODUCT_SERVICE_URL || 'http://product-service:3001';
-const ORDER_SERVICE = process.env.ORDER_SERVICE_URL || 'http://order-service:3000';
+const PRODUCT_SERVICE = process.env.PRODUCT_SERVICE_URL || 'http://product-service:80';
+const ORDER_SERVICE = process.env.ORDER_SERVICE_URL || 'http://order-service:80';
 
 function proxyRequest(targetBase, req, res) {
   const url = new URL(targetBase + req.url);
