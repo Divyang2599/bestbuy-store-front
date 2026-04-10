@@ -6,50 +6,53 @@ const app = express();
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
-const PRODUCT_SERVICE = process.env.PRODUCT_SERVICE_URL || 'http://product-service:80';
-const ORDER_SERVICE = process.env.ORDER_SERVICE_URL || 'http://order-service:80';
+const PRODUCT_HOST = 'product-service';
+const PRODUCT_PORT = 80;
+const ORDER_HOST = 'order-service';
+const ORDER_PORT = 80;
 
-function proxyRequest(targetBase, req, res) {
-  const url = new URL(targetBase + req.url);
+function proxy(host, port, remotePath, method, body, res) {
   const options = {
-    hostname: url.hostname,
-    port: url.port || 80,
-    path: url.pathname + url.search,
-    method: req.method,
-    headers: { 'Content-Type': 'application/json' }
+    hostname: host,
+    port: port,
+    path: remotePath,
+    method: method,
+    headers: { 'Content-Type': 'application/json' },
+    timeout: 5000
   };
 
   const proxyReq = http.request(options, (proxyRes) => {
     let data = '';
     proxyRes.on('data', chunk => data += chunk);
     proxyRes.on('end', () => {
-      try {
-        res.json(JSON.parse(data));
-      } catch (e) {
-        res.status(500).json({ error: 'Invalid response from service' });
-      }
+      try { res.json(JSON.parse(data)); }
+      catch (e) { res.status(500).json({ error: 'Parse error' }); }
     });
   });
 
-  proxyReq.on('error', (err) => {
-    console.error('Proxy error:', err.message);
-    res.status(500).json({ error: 'Service unavailable' });
+  proxyReq.on('timeout', () => {
+    proxyReq.destroy();
+    res.status(504).json({ error: 'Service timeout' });
   });
 
-  if (req.method !== 'GET' && req.body) {
-    proxyReq.write(JSON.stringify(req.body));
-  }
+  proxyReq.on('error', (err) => {
+    res.status(500).json({ error: err.message });
+  });
+
+  if (body) proxyReq.write(JSON.stringify(body));
   proxyReq.end();
 }
 
-app.use('/api/products', (req, res) => {
-  const targetUrl = PRODUCT_SERVICE + '/products' + (req.url === '/' ? '' : req.url);
-  proxyRequest(targetUrl, req, res);
+app.get('/api/products', (req, res) => {
+  proxy(PRODUCT_HOST, PRODUCT_PORT, '/products', 'GET', null, res);
 });
 
-app.use('/api/orders', (req, res) => {
-  const targetUrl = ORDER_SERVICE + '/orders' + (req.url === '/' ? '' : req.url);
-  proxyRequest(targetUrl, req, res);
+app.post('/api/orders', (req, res) => {
+  proxy(ORDER_HOST, ORDER_PORT, '/orders', 'POST', req.body, res);
+});
+
+app.get('/api/orders', (req, res) => {
+  proxy(ORDER_HOST, ORDER_PORT, '/orders', 'GET', null, res);
 });
 
 app.get('/health', (req, res) => res.json({ status: 'healthy', service: 'store-front' }));
